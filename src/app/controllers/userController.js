@@ -39,8 +39,6 @@ exports.signUp = async function (req, res) {
 
     if (!userName) return res.json({isSuccess: false, code: 2007, message: "닉네임을 입력 해주세요"});
 
-    if (!userDday) return res.json({isSuccess: false, code: 2008, message: "userDday를 입력해 주세요"});
-
     if (!/^([a-zA-Z0-9ㄱ-ㅎ|ㅏ-ㅣ|가-힣]).{0,7}$/.test(userName))
     return res.json({
       isSuccess: false,
@@ -190,7 +188,7 @@ exports.setDday = async function (req, res) {
                  message: "user Dday 등록 성공"
              });
          } catch (err) {
-             logger.error(`App - SignUp Query error\n: ${err.message}`);
+             logger.error(`App - setDday Query error\n: ${err.message}`);
              return res.status(2010).send(`Error: ${err.message}`);
          }
  };
