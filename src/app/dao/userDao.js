@@ -120,6 +120,24 @@ async function findSameKey(randomPassword) {
   return findSameKeyRows;
 }
 
+
+//패스워드 업데이트
+async function updatePassword(insertUserInfoParams) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const updatePasswordyQuery = `
+
+  update Users set userPassword = ? where userId = ?;
+  
+                `;
+
+  const [updatePasswordRows] = await connection.query(
+    updatePasswordyQuery,
+    insertUserInfoParams
+  );
+  connection.release();
+  return updatePasswordRows;
+}
+
 module.exports = {
   userEmailCheck,
   userNicknameCheck,
@@ -128,4 +146,5 @@ module.exports = {
   setDday,
   updateUserPasswordInfo,
   findSameKey,
+  updatePassword
 };

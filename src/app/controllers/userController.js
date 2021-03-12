@@ -335,3 +335,41 @@ exports.checkKey = async function (req, res) {
              return res.status(2010).send(`Error: ${err.message}`);
          }
  };
+
+//비밀번호 재설정
+exports.updatePassword = async function (req, res) {
+    const {
+        userId,password,passwordCheck
+    } = req.body;
+
+    if (!userId) return res.json({isSuccess: false, code: 2002, message: "userId를 입력해 주세요."});
+
+    if (!password) return res.json({isSuccess: false, code: 2003, message: "비밀번호를 입력 해주세요"});
+
+    if (password.length < 4 || password.length > 16) return res.json({
+        isSuccess: false,
+        code: 2004,
+        message: "비밀번호는 4자 이상 16자 이하로 입력해주세요"
+    });
+
+    if (!passwordCheck) return res.json({isSuccess: false, code: 2005, message: "비밀번호를 한번 더 입력해주세요"});
+
+    if (passwordCheck !== password) return res.json({isSuccess: false, code: 2006, message: "비밀번호가 맞지 않습니다"});
+
+        try {
+    
+            const hashedPassword = await crypto.createHash('sha512').update(password).digest('hex');
+            const insertUserInfoParams = [hashedPassword,userId];
+            
+            const updatePasswordRows = await userDao.updatePassword(insertUserInfoParams);
+
+            return res.json({
+                isSuccess: true,
+                code: 1000,
+                message: "비밀번호 변경 성공"
+            });
+        } catch (err) {
+            logger.error(`App - SignUp Query error\n: ${err.message}`);
+            return res.status(2010).send(`Error: ${err.message}`);
+        }
+};

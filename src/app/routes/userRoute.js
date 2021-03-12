@@ -11,5 +11,7 @@ module.exports = function(app){
 
     app.post('/key',user.checkKey);
 
+    app.patch('/password',user.updatePassword);
+
    // app.get('/check', jwtMiddleware, user.check);
 };
