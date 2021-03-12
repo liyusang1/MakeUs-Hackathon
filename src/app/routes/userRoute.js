@@ -5,5 +5,7 @@ module.exports = function(app){
     app.route('/sign-up').post(user.signUp);
     app.route('/sign-in').post(user.signIn);
 
-    app.get('/check', jwtMiddleware, user.check);
+    app.post('/d-day', jwtMiddleware, user.setDday);
+
+   // app.get('/check', jwtMiddleware, user.check);
 };

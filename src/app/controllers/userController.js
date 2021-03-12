@@ -12,7 +12,7 @@ const { constants } = require('buffer');
 ///회원가입 API
 exports.signUp = async function (req, res) {
     const {
-        email, password,passwordCheck,userName,userDday
+        email, password,passwordCheck,userName
     } = req.body;
 
     if (!email) return res.json({isSuccess: false, code: 2000, message: "이메일을 입력해주세요"});
@@ -27,10 +27,10 @@ exports.signUp = async function (req, res) {
 
     if (!password) return res.json({isSuccess: false, code: 2003, message: "비밀번호를 입력 해주세요"});
 
-    if (password.length < 8 || password.length > 20) return res.json({
+    if (password.length < 4 || password.length > 16) return res.json({
         isSuccess: false,
         code: 2004,
-        message: "비밀번호는 8자 이상 20자 이하로 입력해주세요"
+        message: "비밀번호는 4자 이상 16자 이하로 입력해주세요"
     });
 
     if (!passwordCheck) return res.json({isSuccess: false, code: 2005, message: "비밀번호를 한번 더 입력해주세요"});
@@ -41,13 +41,11 @@ exports.signUp = async function (req, res) {
 
     if (!userDday) return res.json({isSuccess: false, code: 2008, message: "userDday를 입력해 주세요"});
 
-    var englishCheck = /[a-zA-Z]/gi;
-
-    if (!/^([가-힣]).{1,8}$/.test(userName) || englishCheck.test(userName))
+    if (!/^([a-zA-Z0-9ㄱ-ㅎ|ㅏ-ㅣ|가-힣]).{0,7}$/.test(userName))
     return res.json({
       isSuccess: false,
       code: 2009,
-      message: "닉네임은 한글만 입력가능하고 2자 이상 8자 이하 이어야 합니다",
+      message: "닉네임은 1~8자로 구성되어야 합니다.",
     });
 
     //특수문자 또는 공백 Validation
@@ -83,7 +81,7 @@ exports.signUp = async function (req, res) {
             }
 
             const hashedPassword = await crypto.createHash('sha512').update(password).digest('hex');
-            const insertUserInfoParams = [email, hashedPassword, userName,userDday];
+            const insertUserInfoParams = [email, hashedPassword, userName];
             
             const insertUserRows = await userDao.insertUserInfo(insertUserInfoParams);
 
@@ -149,7 +147,7 @@ exports.signIn = async function (req, res) {
             let token = await jwt.sign({
                     userId: userInfoRows[0].userId,
                     userName: userInfoRows[0].userName,
-                    userEmail: userInfoRows[0].userEmail,
+                    //userEmail: userInfoRows[0].userEmail,
                 }, // 토큰의 내용(payload)
                 secret_config.jwtsecret, // 비밀 키
                 {
@@ -170,6 +168,32 @@ exports.signIn = async function (req, res) {
             return res.status(2010).send(`Error: ${err.message}`);
         }
 };
+
+//디데이 설정
+exports.setDday = async function (req, res) {
+
+    const{userDday} = req.body;
+
+    //유저인덱스
+    const {userId} = req.verifiedToken;
+
+    if (!userDday) return res.json({isSuccess: false, code: 2000, message: "userDday를 입력해주세요."});
+
+         try {
+           
+           const setDdayParams = [userDday,userId]
+           const [setDdayRows] = await userDao.setDday(setDdayParams);
+
+             return res.json({
+                 isSuccess: true,
+                 code: 1000,
+                 message: "user Dday 등록 성공"
+             });
+         } catch (err) {
+             logger.error(`App - SignUp Query error\n: ${err.message}`);
+             return res.status(2010).send(`Error: ${err.message}`);
+         }
+ };
 
 // 토큰 검증
 exports.check = async function (req, res) {

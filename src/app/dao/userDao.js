@@ -39,8 +39,8 @@ async function userNicknameCheck(nickname) {
 async function insertUserInfo(insertUserInfoParams) {
   const connection = await pool.getConnection(async (conn) => conn);
   const insertUserInfoQuery = `
-        INSERT INTO Users(userEmail, userPassword, userName,userDday)
-        VALUES (?, ?, ?, ?);
+        INSERT INTO Users(userEmail, userPassword, userName)
+        VALUES (?, ?, ?);
     `;
   const insertUserInfoRow = await connection.query(
     insertUserInfoQuery,
@@ -68,10 +68,27 @@ async function selectUserInfo(email) {
   return [userInfoRows];
 }
 
+//유저 디데이 설정
+async function setDday(setDdayParams) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const setDdayQuery = `
+
+  update Users set userDday = ? where userId = ?;
+  
+                `;
+
+  const [setDdayRows] = await connection.query(
+    setDdayQuery,
+    setDdayParams
+  );
+  connection.release();
+  return setDdayRows;
+}
 
 module.exports = {
   userEmailCheck,
   userNicknameCheck,
   insertUserInfo,
   selectUserInfo,
+  setDday
 };
