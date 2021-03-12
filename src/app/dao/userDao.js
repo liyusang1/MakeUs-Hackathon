@@ -85,10 +85,29 @@ async function setDday(setDdayParams) {
   return [setDdayRows];
 }
 
+//임시키를 db에 저장
+async function updateUserPasswordInfo(newInfoParams) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const updateUserPasswordInfoQuery = `
+
+  update Users
+       set findKey = ? where userId = ?;
+  
+                `;
+
+  const [updateUserPasswordRows] = await connection.query(
+    updateUserPasswordInfoQuery,
+    newInfoParams
+  );
+  connection.release();
+  return updateUserPasswordRows;
+}
+
 module.exports = {
   userEmailCheck,
   userNicknameCheck,
   insertUserInfo,
   selectUserInfo,
-  setDday
+  setDday,
+  updateUserPasswordInfo
 };

@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const regexEmail = require('regex-email');
 const crypto = require('crypto');
 const secret_config = require('../../../config/secret');
+const nodemailer = require('nodemailer');
 
 const userDao = require('../dao/userDao');
 const { constants } = require('buffer');
@@ -205,4 +206,94 @@ exports.check = async function (req, res) {
         message: "검증 성공",
         info: req.verifiedToken
     })
+};
+
+//비밀 번호 찾기
+exports.sendEmail= async function (req, res) {
+
+    //클라이언트로 부터 찾고자 하는 이메일을 입력 받음
+    const {email} = req.body;
+
+    if (!email) return res.json({
+        isSuccess: false,
+        code: 2000,
+        message: "이메일을 입력해 주세요."
+    });
+
+    if (!regexEmail.test(email)) return res.json({isSuccess: false, code: 2003, message: "이메일 형식을 정확하게 입력해주세요"});
+
+    //DB에 존재하는 유저의 이메일인지 검토
+    const [userInfoRows] = await userDao.selectUserInfo(email)
+        
+    if (userInfoRows.length == 0) return res.json({
+        isSuccess: false,
+        code: 3001,
+        message: "가입되지 않은 이메일 입니다."
+    });
+
+    //임시키를 랜덤 생성 할 변수
+    let variable = "0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z".split(",");
+
+    //임시키를 랜덤 생성해서 db에 임시적으로 저장
+    let randomPassword = createRandomPassword(variable, 8);
+
+    //비밀번호 랜덤 생성 함수
+    function createRandomPassword(variable, passwordLength) {
+        let randomString = "";
+          for (let j=0; j<passwordLength; j++) 
+            randomString += variable[Math.floor(Math.random()*variable.length)];
+            return randomString
+        }
+
+    try {
+        if (userInfoRows.length != 0){
+
+        let userId = userInfoRows[0].userId
+     
+        //임시 키를 db에 저장
+        const newInfoParams = [randomPassword,userId]; 
+        const newUserInfoRows = await userDao.updateUserPasswordInfo(newInfoParams)
+
+        //유저에게 메일 전송
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            port: 465,
+            secure: true,
+            // 이메일을 보낼 계정 데이터 값 입력
+            auth: { 
+              user: 'coketlist@gmail.com',
+              pass: secret_config.gmailPassword,
+            },
+          });
+        // 옵션값 설정
+         const emailOptions = { 
+              from: 'coketlist@gmail.com',
+              to:email,
+              subject: '코킷리스트에서 ' + userInfoRows[0].userName+ '님께 임시번호를 알려드립니다.',
+              html: 
+              "<h1 >'코킷리스트'에서 임시 번호를 알려드립니다.</h1> <h2> 임시번호 : " + randomPassword + "</h2>"
+              +'<h3 style="color: crimson;">임시번호를 통해서 비밀번호를 꼭 재설정 해 주세요.</h3>'
+              //+'<img src="https://firebasestorage.googleapis.com/v0/b/mangoplate-a1a46.appspot.com/o/mailImg.png?alt=media&token=75e07db2-5aa6-4cb2-809d-776ba037fdec">'		
+              ,
+            };
+            //전송
+            transporter.sendMail(emailOptions, res); 
+        
+        return res.json({
+            isSuccess: true,
+            code: 1000,
+            message: "임시번호를 "+email+"으로 발송했습니다. 확인해 주세요."
+        });
+    }
+     
+    return res.json({
+        isSuccess: false,
+        code: 3000,
+        message: "에러 발생"
+    });
+        
+    } catch (err) {
+        logger.error(`App - SignIn Query error\n: ${JSON.stringify(err)}`);
+        return res.status(2010).send(`Error: ${err.message}`);
+    }
 };

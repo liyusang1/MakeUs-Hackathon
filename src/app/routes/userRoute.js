@@ -7,5 +7,7 @@ module.exports = function(app){
 
     app.post('/d-day', jwtMiddleware, user.setDday);
 
+    app.post('/email',user.sendEmail);
+
    // app.get('/check', jwtMiddleware, user.check);
 };
