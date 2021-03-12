@@ -170,22 +170,26 @@ exports.signIn = async function (req, res) {
 //디데이 설정
 exports.setDday = async function (req, res) {
 
-    const{userDday} = req.body;
+    const{userDay} = req.body;
 
     //유저인덱스
     const {userId} = req.verifiedToken;
 
-    if (!userDday) return res.json({isSuccess: false, code: 2000, message: "userDday를 입력해주세요."});
+    if (!userDay) return res.json({isSuccess: false, code: 2000, message: "userDay를 입력해주세요."});
+
+    if(!/^(19|20)\d{2}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[0-1])$/.test(userDay))
+    return res.json({isSuccess: false, code:2001, 
+        message: "올바른 날짜가 아닙니다. 유효한 날짜를 입력해 주세요."});
 
          try {
            
-           const setDdayParams = [userDday,userId]
+           const setDdayParams = [userDay,userId]
            const [setDdayRows] = await userDao.setDday(setDdayParams);
 
              return res.json({
                  isSuccess: true,
                  code: 1000,
-                 message: "user Dday 등록 성공"
+                 message: "코로나 디데이 등록 성공"
              });
          } catch (err) {
              logger.error(`App - setDday Query error\n: ${err.message}`);

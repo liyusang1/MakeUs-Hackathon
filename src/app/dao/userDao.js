@@ -82,7 +82,7 @@ async function setDday(setDdayParams) {
     setDdayParams
   );
   connection.release();
-  return setDdayRows;
+  return [setDdayRows];
 }
 
 module.exports = {
