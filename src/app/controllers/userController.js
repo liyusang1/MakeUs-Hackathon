@@ -254,6 +254,11 @@ exports.sendEmail= async function (req, res) {
         const newInfoParams = [randomPassword,userId]; 
         const newUserInfoRows = await userDao.updateUserPasswordInfo(newInfoParams)
 
+        const findSameKeyRows = await userDao.findSameKey(randomPassword)
+        if(findSameKeyRows.length != 0){
+            randomPassword = createRandomPassword(variable, 8);
+        }
+
         //유저에게 메일 전송
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -297,3 +302,36 @@ exports.sendEmail= async function (req, res) {
         return res.status(2010).send(`Error: ${err.message}`);
     }
 };
+
+//임시번호 확인
+exports.checkKey = async function (req, res) {
+
+    const{key} = req.body;
+
+    if (!key) return res.json({isSuccess: false, code: 2000, message: "key를 입력해주세요."});
+
+         try {
+
+            let randomPassword = key;
+            
+            const findSameKeyRows = await userDao.findSameKey(randomPassword)
+
+            if(findSameKeyRows.length == 0)
+            return res.json({
+                isSuccess: false,
+                code: 3000,
+                message: "올바르지 않은 키 입니다."
+            });
+
+            else
+             return res.json({
+                 isSuccess: true,
+                 code: 1000,
+                 userId : findSameKeyRows[0].userId,
+                 message: "임시번호 확인 성공"
+             });
+         } catch (err) {
+             logger.error(`App - setDday Query error\n: ${err.message}`);
+             return res.status(2010).send(`Error: ${err.message}`);
+         }
+ };

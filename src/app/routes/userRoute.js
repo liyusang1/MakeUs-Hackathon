@@ -9,5 +9,7 @@ module.exports = function(app){
 
     app.post('/email',user.sendEmail);
 
+    app.post('/key',user.checkKey);
+
    // app.get('/check', jwtMiddleware, user.check);
 };

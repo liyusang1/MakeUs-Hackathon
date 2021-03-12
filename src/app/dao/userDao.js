@@ -103,11 +103,29 @@ async function updateUserPasswordInfo(newInfoParams) {
   return updateUserPasswordRows;
 }
 
+//같은키가 있는지 체크
+async function findSameKey(randomPassword) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const findSameKeyQuery = `
+
+  select userId from Users where findKey = ?
+  
+                `;
+
+  const [findSameKeyRows] = await connection.query(
+    findSameKeyQuery,
+    randomPassword
+  );
+  connection.release();
+  return findSameKeyRows;
+}
+
 module.exports = {
   userEmailCheck,
   userNicknameCheck,
   insertUserInfo,
   selectUserInfo,
   setDday,
-  updateUserPasswordInfo
+  updateUserPasswordInfo,
+  findSameKey,
 };
