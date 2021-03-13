@@ -138,6 +138,57 @@ async function updatePassword(insertUserInfoParams) {
   return updatePasswordRows;
 }
 
+//글 인덱스 확인
+async function checkContent(contentsId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const checkContentQuery = `
+
+  select userId from ListContents where contentsId = ?;
+  
+                `;
+
+  const [checkContentRows] = await connection.query(
+    checkContentQuery,
+    contentsId
+  );
+  connection.release();
+  return checkContentRows;
+}
+
+//신고하기
+async function report(reportInfoParams) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const reportQuery = `
+
+  insert into Report (contentsId, reportUserId, targetUserId) values (?,?,?);
+  
+                `;
+
+  const [reportRows] = await connection.query(
+    reportQuery,
+    reportInfoParams
+  );
+  connection.release();
+  return reportRows;
+}
+
+//이미 신고를 했는지 확인
+async function checkReport(reportInfoParams) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const checkReportQuery = `
+
+  select reportId from Report where contentsId = ? and reportId=? and targetUserId =?;
+  
+                `;
+
+  const [checkReportRows] = await connection.query(
+    checkReportQuery,
+    reportInfoParams
+  );
+  connection.release();
+  return checkReportRows;
+}
+
 module.exports = {
   userEmailCheck,
   userNicknameCheck,
@@ -146,5 +197,8 @@ module.exports = {
   setDday,
   updateUserPasswordInfo,
   findSameKey,
-  updatePassword
+  updatePassword,
+  checkContent,
+  report,
+  checkReport
 };

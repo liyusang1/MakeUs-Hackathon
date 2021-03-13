@@ -13,5 +13,7 @@ module.exports = function(app){
 
     app.patch('/password',user.updatePassword);
 
+    app.post('/report/:contentsId',jwtMiddleware,user.addReport);
+
    // app.get('/check', jwtMiddleware, user.check);
 };

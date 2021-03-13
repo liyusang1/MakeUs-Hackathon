@@ -373,3 +373,51 @@ exports.updatePassword = async function (req, res) {
             return res.status(2010).send(`Error: ${err.message}`);
         }
 };
+
+//신고하기
+exports.addReport = async function (req, res) {
+
+    const{contentsId} = req.params;
+
+    //유저인덱스
+    const {userId} = req.verifiedToken;
+    
+    if(!contentsId)
+    return res.json({
+        isSuccess: false,
+        code: 2000,
+        message: "contentsId를 입력해주세요."
+    });
+
+    const checkContentRows = await userDao.checkContent(contentsId);
+    if(checkContentRows.length ==0)
+    return res.json({
+        isSuccess: false,
+        code: 3000,
+        message: "해당하는 인덱스의 글이 없습니다."
+    });
+    else
+    var targetUserId = checkContentRows[0].userId 
+
+        try {
+            const reportInfoParams = [contentsId,userId,targetUserId]
+            const checkReportRows = await userDao.checkReport(reportInfoParams);
+            if(checkReportRows.length !=0 )
+               return res.json({
+                    isSuccess: false,
+                    code: 3001,
+                    message: "이미 신고한 글입니다."
+                   });
+            
+            const reportRows = await userDao.report(reportInfoParams);
+
+            return res.json({
+                isSuccess: true,
+                code: 1000,
+                message: "신고성공"
+            });
+        } catch (err) {
+            logger.error(`App - SignUp Query error\n: ${err.message}`);
+            return res.status(2010).send(`Error: ${err.message}`);
+        }
+};
