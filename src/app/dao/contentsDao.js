@@ -40,7 +40,7 @@ async function getcontentsInfo(userId) {
   select contentsId,
        contents
       from ListContents
-where status = 1 or status = 2 and userId ='${userId}';
+where userId ='${userId}';
   `;
 
   const [getcontentsrows] = await connection.query(
