@@ -72,9 +72,14 @@ where contentsId = '${contentsId}' and userID ='${userId}';
 async function getsharecontentsInfo() {
   const connection = await pool.getConnection(async (conn) => conn);
   const  sharecontentsQuery = `
-update ListContents
-set status=2
-where contentsId = '${contentsId}' and userID ='${userId}';
+  select ListContents.userId,
+  userName,
+  contentsId,
+  contents,
+  date_format(ListContents.createdAt, '%Y %m %d') as 'time'
+from ListContents
+inner join Users on Users.userId = ListContents.userId
+where ListContents.status = 2;
   `;
 
   const [sharecontentsrows] = await connection.query(
