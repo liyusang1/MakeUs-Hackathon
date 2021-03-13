@@ -177,7 +177,7 @@ async function checkReport(reportInfoParams) {
   const connection = await pool.getConnection(async (conn) => conn);
   const checkReportQuery = `
 
-  select reportId from Report where contentsId = ? and reportId=? and targetUserId =?;
+  select reportId from Report where contentsId = ? and reportUserId=? and targetUserId =?;
   
                 `;
 
