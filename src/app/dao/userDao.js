@@ -103,11 +103,48 @@ async function updateUserPasswordInfo(newInfoParams) {
   return updateUserPasswordRows;
 }
 
+//같은키가 있는지 체크
+async function findSameKey(randomPassword) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const findSameKeyQuery = `
+
+  select userId from Users where findKey = ?
+  
+                `;
+
+  const [findSameKeyRows] = await connection.query(
+    findSameKeyQuery,
+    randomPassword
+  );
+  connection.release();
+  return findSameKeyRows;
+}
+
+
+//패스워드 업데이트
+async function updatePassword(insertUserInfoParams) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const updatePasswordyQuery = `
+
+  update Users set userPassword = ? where userId = ?;
+  
+                `;
+
+  const [updatePasswordRows] = await connection.query(
+    updatePasswordyQuery,
+    insertUserInfoParams
+  );
+  connection.release();
+  return updatePasswordRows;
+}
+
 module.exports = {
   userEmailCheck,
   userNicknameCheck,
   insertUserInfo,
   selectUserInfo,
   setDday,
-  updateUserPasswordInfo
+  updateUserPasswordInfo,
+  findSameKey,
+  updatePassword
 };

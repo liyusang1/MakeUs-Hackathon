@@ -254,6 +254,11 @@ exports.sendEmail= async function (req, res) {
         const newInfoParams = [randomPassword,userId]; 
         const newUserInfoRows = await userDao.updateUserPasswordInfo(newInfoParams)
 
+        const findSameKeyRows = await userDao.findSameKey(randomPassword)
+        if(findSameKeyRows.length != 0){
+            randomPassword = createRandomPassword(variable, 8);
+        }
+
         //유저에게 메일 전송
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -296,4 +301,75 @@ exports.sendEmail= async function (req, res) {
         logger.error(`App - SignIn Query error\n: ${JSON.stringify(err)}`);
         return res.status(2010).send(`Error: ${err.message}`);
     }
+};
+
+//임시번호 확인
+exports.checkKey = async function (req, res) {
+
+    const{key} = req.body;
+
+    if (!key) return res.json({isSuccess: false, code: 2000, message: "key를 입력해주세요."});
+
+         try {
+
+            let randomPassword = key;
+            
+            const findSameKeyRows = await userDao.findSameKey(randomPassword)
+
+            if(findSameKeyRows.length == 0)
+            return res.json({
+                isSuccess: false,
+                code: 3000,
+                message: "올바르지 않은 키 입니다."
+            });
+
+            else
+             return res.json({
+                 isSuccess: true,
+                 code: 1000,
+                 userId : findSameKeyRows[0].userId,
+                 message: "임시번호 확인 성공"
+             });
+         } catch (err) {
+             logger.error(`App - setDday Query error\n: ${err.message}`);
+             return res.status(2010).send(`Error: ${err.message}`);
+         }
+ };
+
+//비밀번호 재설정
+exports.updatePassword = async function (req, res) {
+    const {
+        userId,password,passwordCheck
+    } = req.body;
+
+    if (!userId) return res.json({isSuccess: false, code: 2002, message: "userId를 입력해 주세요."});
+
+    if (!password) return res.json({isSuccess: false, code: 2003, message: "비밀번호를 입력 해주세요"});
+
+    if (password.length < 4 || password.length > 16) return res.json({
+        isSuccess: false,
+        code: 2004,
+        message: "비밀번호는 4자 이상 16자 이하로 입력해주세요"
+    });
+
+    if (!passwordCheck) return res.json({isSuccess: false, code: 2005, message: "비밀번호를 한번 더 입력해주세요"});
+
+    if (passwordCheck !== password) return res.json({isSuccess: false, code: 2006, message: "비밀번호가 맞지 않습니다"});
+
+        try {
+    
+            const hashedPassword = await crypto.createHash('sha512').update(password).digest('hex');
+            const insertUserInfoParams = [hashedPassword,userId];
+            
+            const updatePasswordRows = await userDao.updatePassword(insertUserInfoParams);
+
+            return res.json({
+                isSuccess: true,
+                code: 1000,
+                message: "비밀번호 변경 성공"
+            });
+        } catch (err) {
+            logger.error(`App - SignUp Query error\n: ${err.message}`);
+            return res.status(2010).send(`Error: ${err.message}`);
+        }
 };
