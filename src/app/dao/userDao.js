@@ -189,6 +189,74 @@ async function checkReport(reportInfoParams) {
   return checkReportRows;
 }
 
+//글의 인덱스 확인
+async function listIdCheck(contentsId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const listIdCheckQuery = `
+
+  select contentsId from ListContents where contentsId= ?;
+                `;
+
+  const [listIdCheckRows] = await connection.query(
+    listIdCheckQuery,
+    contentsId
+  );
+  connection.release();
+  return listIdCheckRows;
+}
+
+//좋아요 확인
+async function likeCheck(likeParams) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const likeCheckQuery = `
+
+  select status from ListLike where userId=? and contentsId= ?;
+                `;
+
+  const [likeCheckRows] = await connection.query(
+    likeCheckQuery,
+    likeParams
+  );
+  connection.release();
+  return likeCheckRows;
+}
+
+//좋아요 생성
+async function postLike(likeParams) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const postLikeQuery = `
+
+  insert into ListLike (userId,contentsId,status) values (?,?,1);
+                `;
+
+  const [postLikeRows] = await connection.query(
+    postLikeQuery,
+    likeParams
+  );
+  connection.release();
+  return postLikeRows;
+}
+
+//좋아요 상태값 변경
+async function patchLike(likeParams) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const patchLikeQuery = `
+
+  -- 상태 수정
+  update ListLike
+  SET status= if(status = 1, 0, 1)
+  where userId = ? and contentsId = ?;
+
+                `;
+
+  const [patchLikeRows] = await connection.query(
+    patchLikeQuery,
+    likeParams
+  );
+  connection.release();
+  return patchLikeRows;
+}
+
 module.exports = {
   userEmailCheck,
   userNicknameCheck,
@@ -200,5 +268,9 @@ module.exports = {
   updatePassword,
   checkContent,
   report,
-  checkReport
+  checkReport,
+  listIdCheck,
+  likeCheck,
+  postLike,
+  patchLike
 };

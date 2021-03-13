@@ -15,5 +15,8 @@ module.exports = function(app){
 
     app.post('/report/:contentsId',jwtMiddleware,user.addReport);
 
+    app.patch('/contents/:contentsId/like',jwtMiddleware,user.like);
+
+
    // app.get('/check', jwtMiddleware, user.check);
 };

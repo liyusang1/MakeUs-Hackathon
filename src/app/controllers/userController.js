@@ -421,3 +421,81 @@ exports.addReport = async function (req, res) {
             return res.status(2010).send(`Error: ${err.message}`);
         }
 };
+
+//좋아요 상태 수정
+exports.like = async function (req, res) {
+    
+    const { contentsId } = req.params;
+  
+    //유저인덱스
+    const {userId} = req.verifiedToken;
+      
+      if (!/^([0-9]).{0,10}$/.test(contentsId))
+      return res.json({
+        isSuccess: false,
+        code: 2001,
+        message: "contentsId는 숫자로 입력해야 합니다.",
+      });
+  
+      //인덱스 유효체크
+      const listIdCheckRows = await userDao.listIdCheck(contentsId)
+      if (listIdCheckRows.length == 0) 
+        return res.json({
+          isSuccess: false,
+          code: 3000,
+          message: "해당하는 인덱스의 글이 존재하지 않습니다.",
+        });
+  
+      try {
+  
+        const likeParams = [userId,contentsId];
+  
+        // DB 체크
+        const likeCheckRows = await userDao.likeCheck(likeParams)
+  
+        //등록되어 있지 않다면 status값을 1로 DB에 새로 생성
+        if(likeCheckRows.length == 0){
+  
+          const postLikeRows = await userDao.postLike(likeParams)
+          return res.json({
+            isSuccess: true,
+            code: 1000,
+            message: "좋아요 생성 완료",
+          });
+        }
+  
+        //이미 등록되어 있는 경우라면 상태값을 0또는 1로 값에 따라 변경 
+        else{
+  
+          const patchLikeRows = await userDao.patchLike(likeParams)
+  
+           if(likeCheckRows[0].status == 0){
+             return res.json({
+             isSuccess: true,
+             code: 1001,
+             message: "좋아요 ON",
+           });
+         }
+  
+           else if(likeCheckRows[0].status == 1){
+            return res.json({
+            isSuccess: true,
+            code: 1002,
+            message: "좋아요 OFF",
+           });
+         }     
+  
+        }
+        return res.json({
+          isSuccess: false,
+          code: 3001,
+          message: "에러 발생.",
+        });
+  
+      } catch (err) {
+        // await connection.rollback(); // ROLLBACK
+        // connection.release();
+        logger.error(`App - SignUp Query error\n: ${err.message}`);
+        return res.status(500).send(`Error: ${err.message}`);
+      }
+    }
