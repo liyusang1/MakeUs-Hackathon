@@ -40,7 +40,7 @@ async function getcontentsInfo(userId) {
   select contentsId,
        contents
       from ListContents
-where status = 1 or status = 2 and userId ='${userId}';
+where userId ='${userId}';
   `;
 
   const [getcontentsrows] = await connection.query(
@@ -50,6 +50,25 @@ where status = 1 or status = 2 and userId ='${userId}';
   connection.release();
 
   return getcontentsrows;
+}
+//유저디데이조회
+async function getuserddayInfo(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const  getuserddayQuery = `
+  select userId,
+       userName,
+       concat((to_days(userDday)-to_days(current_date())),'일 뒤에는...!') as'userdday'
+from Users
+where userId = '${userId}';
+  `;
+
+  const [getuserddayrows] = await connection.query(
+    getuserddayQuery,
+    
+  );
+  connection.release();
+
+  return getuserddayrows;
 }
 //코킷리스트공유
 async function sharecontentsInfo(userId,contentsId) {
@@ -68,18 +87,45 @@ where contentsId = '${contentsId}' and userID ='${userId}';
 
   return sharecontentsrows;
 }
+//정렬기준변수설정
+async function setSort(sort){
+  const connection = await pool.getConnection(async (conn) => conn);
+  const  setSortQuery = `
+    set @sort := ?;
+  `;
+
+  const [setSortrows] = await connection.query(
+    setSortQuery,
+    sort
+  );
+  connection.release();
+  return setSortrows;
+}
 //공유된코킷리스트조회
-async function getsharecontentsInfo() {
+async function getsharecontentsInfo(userId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const  sharecontentsQuery = `
   select ListContents.userId,
-  userName,
-  contentsId,
-  contents,
-  date_format(ListContents.createdAt, '%Y %m %d') as 'time'
+       userName,
+       ListContents.contentsId,
+       contents,
+       likeCount,
+       date_format(ListContents.createdAt, '%Y.%m.%d') as 'time',
+       ifnull(isLike,0) as isLike
 from ListContents
 inner join Users on Users.userId = ListContents.userId
-where ListContents.status = 2;
+left join (select count(ListLike.contentsId) as likeCount,
+                  status,ListLike.contentsId
+from ListLike where status= 1 group by ListLike.contentsId)좋아요 on ListContents.contentsId = 좋아요.contentsId
+left outer join (select contentsId, count(*) as isLike from ListLike where userId ='${userId}'  and status = 1
+        group by contentsId) BookMark
+        on BookMark.contentsId = ListContents.contentsId
+where ListContents.status=2
+order by case
+    when @sort = 1 then likeCount
+    when @sort = 2 then ListContents.createdAt
+    end
+ desc;
   `;
 
   const [sharecontentsrows] = await connection.query(
@@ -90,10 +136,14 @@ where ListContents.status = 2;
 
   return sharecontentsrows;
 }
+
 module.exports = {
   insertcontentsInfo,
   deletecontentsInfo,
   getcontentsInfo,
   sharecontentsInfo,
-  getsharecontentsInfo
+  getsharecontentsInfo,
+  getuserddayInfo,
+  setSort
+  
 };
