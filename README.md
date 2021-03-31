@@ -1,6 +1,7 @@
 # MakeUs Hackathon
 
 ## MakeUs Hackathon에 사용된 서버 코드입니다.
+>What's MakeUs ?  👉  https://www.makeus.in
 ---
 ## 해커톤 주제
 >Hackathon Topic : 코로나 관련 Application 만들기
@@ -40,5 +41,5 @@
 
 ---
 ## License
-### 본 템플릿은 소프트스퀘어드 MakeUs에 소유권이 있으며 본 자료에 대한 상업적 이용 및 무단 복제,배포 및 변경을 원칙적으로 금지하며 이를 위반할 때에는 형사처벌을 받을 수 있습니다.
+### 본 템플릿은 MakeUs에 소유권이 있으며 본 자료에 대한 상업적 이용 및 무단 복제,배포 및 변경을 원칙적으로 금지하며 이를 위반할 때에는 형사처벌을 받을 수 있습니다.
 
