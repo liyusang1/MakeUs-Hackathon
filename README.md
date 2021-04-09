@@ -1,16 +1,16 @@
-# MakeUs Hackathon
+# :computer: MakeUs Hackathon
 
 ## MakeUs Hackathon에 사용된 서버 코드입니다.
 >What's MakeUs ?  👉  https://www.makeus.in
 ---
-## 해커톤 주제
+## :memo: 해커톤 주제
 >Hackathon Topic : 코로나 관련 Application 만들기
 ---
-## 개발 기간
+## :calendar: 개발 기간
 > 2021-03-12 9:00 ~ 18:00
 ---
-## 개발 환경
->AWS EC2에서 Nginx와 Node를 통해 서버를 구동하고 AWS RDS를 사용.
+## 🛠 개발 스택
+>AWS EC2에서 Nginx와 Node를 통해 배포를 하고 DB는 AWS RDS에서 MySQL를 사용해 관리.
 
 <img src="https://firebasestorage.googleapis.com/v0/b/mangoplate-a1a46.appspot.com/o/nginx.png?alt=media&token=838f77d3-a729-4a81-b1ad-8befaf55d429" width="250" height="100"> <img src="https://miro.medium.com/max/960/0*uXXbbKGKNQUQonbC.png" width="220" height="100">
 
@@ -40,6 +40,6 @@
 
 
 ---
-## License
+## :warning: License
 ### 본 템플릿은 MakeUs에 소유권이 있으며 본 자료에 대한 상업적 이용 및 무단 복제,배포 및 변경을 원칙적으로 금지하며 이를 위반할 때에는 형사처벌을 받을 수 있습니다.
 
