@@ -30,7 +30,6 @@
 
 <img src="https://firebasestorage.googleapis.com/v0/b/mangoplate-a1a46.appspot.com/o/Coketlist_%ED%95%B4%EC%BB%A4%ED%86%A4_page-0004.jpg?alt=media&token=4496de31-148a-4ea7-8bd0-fbb7ec8cd3a4" >
 
-<img src="https://firebasestorage.googleapis.com/v0/b/mangoplate-a1a46.appspot.com/o/Coketlist_%ED%95%B4%EC%BB%A4%ED%86%A4_page-0005.jpg?alt=media&token=850f2bb7-50e7-4bf7-bd05-72b7aa49a7d2" >
 
 <img src="https://firebasestorage.googleapis.com/v0/b/mangoplate-a1a46.appspot.com/o/Coketlist_%ED%95%B4%EC%BB%A4%ED%86%A4_page-0006.jpg?alt=media&token=2e6ff53b-a69c-4dc2-be1b-97a69a3ab575" >
 
